@@ -1,23 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 	<head>
-		<meta charset="utf-8" />
-		<title></title>
-		<script src="js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+		<title>余氏宗谱</title>
+		<link rel="stylesheet" type="text/css" href="./css/common.css">
+		<link rel="stylesheet" type="text/css" href="./css/index.css">
+		<script src="./js/vue.js"></script>
 	</head>
 	<body>
-		<div id="app">
-			{{ counter }}
+		<div id="vue_content">
+			<div class="gener-navigator align-center justify-center">
+				{{title}}
+
+				<div v-if="step != 0" class="gener-back align-center">
+					返回
+				</div>
+
+				<div v-if="step != 2" class="gener-search align-center" @click="showSearch = !showSearch">
+					{{step == 0 ? '搜索' : '关联'}}
+				</div>
+			</div>
+			<div class="page-content">
+				<div v-if="step == 0" class="page-index">
+					<div v-for="(item,index) of genealList" :key="'outside' + index">
+						<div class="gener-title">
+							第{{item[0].generation}}世
+							<span class="gener-subtitle">
+								({{item[0].name[0]}}字辈，{{item.length}}人)
+							</span>
+						</div>
+
+						<div class="flex-row align-center" style="flex-wrap: wrap;margin: 20px 0;">
+							<a @click="setCurrent(obj)" class="gener-card flex-col justify-between"
+								v-for="(obj,idx) in item" :key="'inside' + idx">
+								<div style="color: black;">
+									余{{obj.name}}
+								</div>
+								<div class="gener-desc">
+									{{obj.origin}}
+								</div>
+							</a>
+						</div>
+					</div>
+				</div>
+				<div v-else-if="step == 1" class="page-index">
+					<div class="detail-title flex-col align-center justify-center">
+						余{{current.name}}
+					</div>
+					<div class="detail-origin">{{current.origin}}</div>
+					<div class="detail-desc">{{current.desc}}</div>
+					<div v-if="current.father" class="detail-gener">
+						父亲：
+						<div class="detail-person" @click="setCurrent(gendata[current.father])">
+							余{{gendata[current.father].name}}
+						</div>
+					</div>
+					<div v-if="current.children.length" class="detail-gener">
+						子嗣：
+						<div class="detail-person" v-for="(item,index) of current.children" :key="index"
+							@click="setCurrent(gendata[item])">
+							余{{gendata[item].name}}
+						</div>
+					</div>
+
+					<div v-if="brothers.length" class="detail-gener">
+						兄弟：
+						<div class="detail-person" v-for="(item,index) of brothers" :key="index"
+							@click="setCurrent(gendata[item])">
+							余{{gendata[item].name}}
+						</div>
+					</div>
+
+					<div v-if="progenys.length" class="detail-gener">
+						后代：
+						<div class="detail-person" v-for="(item,index) of progenys" :key="index"
+							@click="setCurrent(gendata[item])">
+							余{{gendata[item].name}}
+						</div>
+					</div>
+
+				</div>
+				<div v-else class="page-index"></div>
+			</div>
+
+			<div class="page-drawer" v-show="showSearch" @click.stop.prevent="showSearch = false">
+				<div class="drawer-content">
+
+				</div>
+			</div>
 		</div>
-		<script>
-			const App = {
-				data() {
-					return {
-						counter: 0
-					}
-				}
-			};
-			Vue.createApp(App).mount('#app');
-		</script>
+		<script src="js/index.js"></script>
 	</body>
 </html>
