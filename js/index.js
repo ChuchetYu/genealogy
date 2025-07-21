@@ -657,17 +657,84 @@ new Vue({
 		step: 0, //0主页 1详情页 2关系页
 		title: "余氏宗谱",
 		current: {},
+		relate: {},
 		showSearch: false,
+		keyword: '',
+		relateDesc: '',
 		gendata: genealogy
 	},
 	methods: {
 		setStep(step) {
 			this.step = step
-			this.title = step == 0 ? '余氏宗谱' : step == 1 ? '余' + this.current.name + '个人信息' : '共同联系'
+			this.title = step == 0 ? '余氏宗谱' : step == 1 ? '余' + this.current.name + '个人信息' : '关联信息'
+		},
+		goBack() {
+			this.step -= 1
+			this.setStep(this.step)
 		},
 		setCurrent(obj) {
+			this.resetSearch()
 			this.current = obj
-			this.setStep(1);
+			this.setStep(1)
+		},
+		resetSearch() {
+			this.showSearch = false
+			this.keyword = ''
+		},
+		searchClick(obj) {
+			if (this.step == 0) {
+				this.setCurrent(obj)
+			} else {
+				this.resetSearch()
+				this.relate = obj
+				this.calculateRelate()
+				this.setStep(2)
+			}
+		},
+		calculateRelate() {
+			let text = ''
+			const c = this.current
+			const r = this.relate
+			if (c.generation == r.generation) {
+				if (c.name == r.name) {
+					text = '请不要开玩笑好不，这两个人分明是同一个人，真是服了你了。'
+				} else {
+					if (c.father == r.father) {
+						text = c.name + '和' + r.name + '两人的关系为亲兄弟。他们的父亲是：' + genealogy[c.father].name
+					} else {
+						let pa = c
+						let pb = r
+						while (pa.father != pb.father) {
+							pa = genealogy[pa.father]
+							pb = genealogy[pb.father]
+						}
+						text = c.name + '和' + r.name + '两人的关系为堂兄弟。他们共同的亲人是：' + genealogy[pa.father].name
+					}
+				}
+			} else {
+				const scale = Math.abs(c.generation - r.generation) - 1
+				let cache1 = c.generation < r.generation ? c : r
+				let cache2 = c.generation < r.generation ? r : c
+				let cache = c.generation < r.generation ? r : c
+				for (let i = 0; i < scale + 1; i += 1) {
+					cache = genealogy[cache.father]
+				}
+				const up = scale > upgen.length ? '祖辈' : upgen[scale]
+				const down = scale > downgen.length ? '后代' : downgen[scale]
+				if (cache1.name == cache.name) {
+					text = cache1.name + '是' + cache2.name + '的亲' + up + '。而' + cache2.name + '则是' + cache1
+						.name + '的亲' + down + '。'
+				} else {
+					if (scale == 0) {
+						text = cache1.name + '是' + cache2.name + '的叔伯。而' + cache2.name + '则是' + cache1
+							.name + '侄子。他们共同的亲人是：' + genealogy[cache1.father].name
+					} else {
+						text = cache1.name + '算是' + cache2.name + '的' + up + '。而' + cache2.name + '则是' + cache1
+							.name + '兄弟的' + down + '。他们共同的亲人是：' + genealogy[cache1.father].name
+					}
+				}
+			}
+			this.relateDesc = text
 		},
 		getProgenys(children) {
 			let list = []
@@ -694,16 +761,19 @@ new Vue({
 			if (!father) return list
 			let childrens = genealogy[father].children
 			list = childrens.filter((e) => genealogy[e].name != this.current.name)
-			return list;
+			return list
 		},
 		progenys: function() {
 			const descendants = new Set();
 			const queue = [...this.current.children];
 			while (queue.length > 0) {
-				const current = queue.shift();
+				const current = queue.shift()
 				descendants.add(current);
-				const children = genealogy[current].children || [];
-				queue.push(...children);
+				const person = genealogy[current]
+				if (person) {
+					const children = person.children || []
+					queue.push(...children);
+				}
 			}
 			return [...descendants];
 		},

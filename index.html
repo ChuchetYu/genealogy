@@ -13,7 +13,7 @@
 			<div class="gener-navigator align-center justify-center">
 				{{title}}
 
-				<div v-if="step != 0" class="gener-back align-center">
+				<div v-if="step != 0" class="gener-back align-center" @click="goBack()">
 					返回
 				</div>
 
@@ -22,7 +22,7 @@
 				</div>
 			</div>
 			<div class="page-content">
-				<div v-if="step == 0" class="page-index">
+				<div v-if="step == 0">
 					<div v-for="(item,index) of genealList" :key="'outside' + index">
 						<div class="gener-title">
 							第{{item[0].generation}}世
@@ -44,7 +44,7 @@
 						</div>
 					</div>
 				</div>
-				<div v-else-if="step == 1" class="page-index">
+				<div v-else-if="step == 1">
 					<div class="detail-title flex-col align-center justify-center">
 						余{{current.name}}
 					</div>
@@ -81,11 +81,41 @@
 					</div>
 
 				</div>
-				<div v-else class="page-index"></div>
+				<div v-else>
+					<div class="flex-row align-center justify-around" style="margin: 50px 0;">
+						<div class="ralate-name">
+							{{current.name}}
+						</div>
+
+						<div class="ralate-vs align-center justify-center">
+							𝒗𝒔
+						</div>
+
+						<div class="ralate-name">
+							{{relate.name}}
+						</div>
+					</div>
+					<div class="ralate-desc">
+						{{relateDesc}}
+					</div>
+				</div>
 			</div>
 
-			<div class="page-drawer" v-show="showSearch" @click.stop.prevent="showSearch = false">
+			<div class="page-drawer" v-show="showSearch">
 				<div class="drawer-content">
+					<div class="search-input flex-row align-center justify-between">
+						<input type="text" placeholder="请输入姓名检索" v-model="keyword">
+						<button @click="showSearch = false">关闭</button>
+					</div>
+					<div class="search-content">
+						<div class="flex-row align-center" v-for="(item,index) in persons"
+							style="padding: 20px;border-bottom: #ccc 1px solid;" :key="index"
+							v-show="item.name.includes(keyword) || item.origin.includes(keyword)"
+							@click="searchClick(item)">
+							{{item.name}}
+							<span style="font-size: 13px;color: gray;">({{item.origin}})</span>
+						</div>
+					</div>
 
 				</div>
 			</div>
