@@ -1,11 +1,51 @@
 const genealogy = {
+	"yinghan": {
+		"name": "英韩",
+		"generation": 76,
+		"origin": "不详",
+		"children": ["yijiang", "yihuai", "yihe", "yihan", "yiduo"],
+		"father": null,
+		"desc": "不详"
+	},
+	"yijiang": {
+		"name": "以江",
+		"generation": 77,
+		"origin": "英韩长子",
+		"children": [],
+		"father": "yinghan",
+		"desc": "不详 "
+	},
+	"yihuai": {
+		"name": "以淮",
+		"generation": 77,
+		"origin": "英韩次子",
+		"children": [],
+		"father": "yinghan",
+		"desc": "不详 "
+	},
 	"yihe": {
 		"name": "以河",
 		"generation": 77,
 		"origin": "英韩三子",
 		"children": ["quanda", "quanying", "quanchao"],
-		"father": null,
+		"father": "yinghan",
 		"desc": "字九祥，生于乾隆丁丑年七月初十日戌时。娶段氏生于乾隆壬午年七月二十九日午时。生三子： 全达、 全迎、 全朝。 公殁于嘉庆丁卯年子月三十日申时， 葬馀墩山兼乾向。氏殁于嘉庆戊辰年闰五月十三日卯时， 葬于雷公山岭坤艮向。 "
+	},
+	"yihan": {
+		"name": "以汉",
+		"generation": 77,
+		"origin": "英韩四子",
+		"children": [],
+		"father": "yinghan",
+		"desc": "不详 "
+	},
+	"yiduo": {
+		"name": "以铎",
+		"generation": 77,
+		"origin": "英韩幼子",
+		"children": [],
+		"father": "yinghan",
+		"desc": "不详 "
 	},
 	"quanda": {
 		"name": "全达",
@@ -708,7 +748,7 @@ new Vue({
 							pa = genealogy[pa.father]
 							pb = genealogy[pb.father]
 						}
-						text = c.name + '和' + r.name + '两人的关系为堂兄弟。他们共同的亲人是：' + genealogy[pa.father].name
+						text = c.name + '和' + r.name + '两人的关系为堂兄弟。和他们关联最近的人是：' + genealogy[pa.father].name
 					}
 				}
 			} else {
@@ -722,15 +762,21 @@ new Vue({
 				const up = scale > upgen.length ? '祖辈' : upgen[scale]
 				const down = scale > downgen.length ? '后代' : downgen[scale]
 				if (cache1.name == cache.name) {
-					text = cache1.name + '是' + cache2.name + '的亲' + up + '。而' + cache2.name + '则是' + cache1
-						.name + '的亲' + down + '。'
+					text = cache1.name + '是' + cache2.name + '的' + up + '。而' + cache2.name + '则是' + cache1
+						.name + '的' + down + '。'
 				} else {
+					let pa = cache1
+					let pb = cache
+					while (pa.father != pb.father) {
+						pa = genealogy[pa.father]
+						pb = genealogy[pb.father]
+					}
 					if (scale == 0) {
 						text = cache1.name + '是' + cache2.name + '的叔伯。而' + cache2.name + '则是' + cache1
-							.name + '侄子。他们共同的亲人是：' + genealogy[cache1.father].name
+							.name + '侄子。和他们关联最近的人：' + genealogy[pa.father].name
 					} else {
 						text = cache1.name + '算是' + cache2.name + '的' + up + '。而' + cache2.name + '则是' + cache1
-							.name + '兄弟的' + down + '。他们共同的亲人是：' + genealogy[cache1.father].name
+							.name + '兄弟的' + down + '。和他们关联最近的人：' + genealogy[pa.father].name
 					}
 				}
 			}
@@ -795,7 +841,4 @@ new Vue({
 			return list
 		}
 	},
-	created() {
-
-	}
 })
